@@ -1,0 +1,258 @@
+C51 COMPILER V9.52.0.0   MAIN                                                              06/09/2016 21:52:44 PAGE 1   
+
+
+C51 COMPILER V9.52.0.0, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN main.OBJ
+COMPILER INVOKED BY: D:\Keil\C51\BIN\C51.EXE main.c BROWSE DEBUG OBJECTEXTEND TABS(2)
+
+line level    source
+
+   1          /* 
+   2          ========================·Ö»ú³ÌĞòËµÃ÷===========================
+   3          ÏîÄ¿Ãû³Æ£º»ùÓÚ¼¤¹â·´À¡µÄ¶şÎ¬¾«ÃÜ¶¨Î»ÏµÍ³
+   4          ³ÌĞòÃû³Æ£º·Ö»ú´¦Àí³ÌĞò£¨MCU1£©
+   5          ³ÌĞò×÷ÓÃ£ºÍê³É¿ØÖÆÏµÍ³ÖĞ·Öµ¥Æ¬»úµÄÍ¨Ñ¶ÓëÊı¾İ´¦Àí
+   6          ³ÌĞòÓïÑÔ£ºC51
+   7          ³ÌĞò×÷Õß£ºÂíÉÏ½İ£¬»úµç¹¤³ÌÑ§Ôº2012¼¶£¬ÖĞ¹ú¿óÒµ´óÑ§
+   8          ³ÌĞò×¢ÊÍ£ºÂíÉÏ½İ£¬»úµç¹¤³ÌÑ§Ôº2012¼¶£¬ÖĞ¹ú¿óÒµ´óÑ§
+   9          ´´½¨Ê±¼ä£º2016Äê5ÔÂ5ÈÕ
+  10          ĞŞ¸ÄÊ±¼ä£»2016Äê5ÔÂ15ÈÕ
+  11          ×¢ÊÍĞŞ¸Ä£º2016Äê5ÔÂ20ÈÕ
+  12          ===============================================================
+  13          */
+  14          #include <reg52.h>    //°üº¬AT89C52Í·ÎÄ¼şÄÚÈİ
+  15          #include <string.h>   //°üº¬×Ö·û´®´¦ÀíÍ·ÎÄ¼şÄÚÈİ
+  16          #include <intrins.h>
+  17          #include <stdlib.h>
+  18          
+  19          //¶¨Òå²ÎÊı
+  20          bdata unsigned char SBUF1;   //¶¨ÒåÒ»¸öÎ»²Ù×÷±äÁ¿
+  21          unsigned char code LedChar[] = { 0x3F, 0x06, 0x5B, 0x4F, 0x66, 0x6D, 0x7D,0x07,0x7F,0x6F}; //¹²Òõ¼«ÊıÂë¹ÜÊ
+             -ı×Ö¶ÎÑ¡Âë
+  22          const unsigned char step_table[]={0x04,0x0c,0x08,0x18,0x10,0x30,0x20,0x24};
+  23          unsigned char sdrq_buff[9]; // ¶¨Òå½ÓÊÕÖ÷»úÇëÇó´úÂëÇø
+  24          unsigned char x[9];   // x×ø±ê´æ´¢
+  25          unsigned char xx[9];  //ÊıÂë¹ÜÊı×é
+  26          unsigned int i = 0;
+  27          sbit TXD1 = P3^4; //¶¨ÒåÄ£ÄâÊä³ö½Å
+  28          sbit RXD1 = P3^5;   //¶¨ÒåÄ£ÄâÊäÈë½Å
+  29          sbit SBUF1_bit0 = SBUF1^0;
+  30          sbit SBUF1_bit1 = SBUF1^1;
+  31          sbit SBUF1_bit2 = SBUF1^2;
+  32          sbit SBUF1_bit3 = SBUF1^3;
+  33          sbit SBUF1_bit4 = SBUF1^4;
+  34          sbit SBUF1_bit5 = SBUF1^5;
+  35          sbit SBUF1_bit6 = SBUF1^6;
+  36          sbit SBUF1_bit7 = SBUF1^7;
+  37          
+  38          
+  39          //º¯ÊıÔ­ĞÍÉùÃ÷
+  40          void num_disp(char *);
+  41          void delay(void);
+  42          void delay2(unsigned int);
+  43          void delay_bps();
+  44          unsigned char getchar2();
+  45          void putchar2(unsigned char input);
+  46          /*
+  47          ======================Ö÷º¯Êı===================================
+  48          º¯ÊıÃû³Æ£ºmain
+  49          º¯Êı²ÎÊı£ºÎŞ£¨void£©
+  50          º¯Êı·µ»ØÖµ£ºÎŞ£¨void£©
+  51          º¯Êı×÷ÓÃ£ºÖ÷³ÌĞòÈë¿Úº¯Êı
+  52          ´´½¨Ê±¼ä£º2016Äê5ÔÂ5ÈÕ
+  53          ĞŞ¸ÄÊ±¼ä£»2016Äê5ÔÂ15ÈÕ
+  54          ×¢ÊÍĞŞ¸Ä£º2016Äê5ÔÂ20ÈÕ
+C51 COMPILER V9.52.0.0   MAIN                                                              06/09/2016 21:52:44 PAGE 2   
+
+  55          ===============================================================
+  56          */
+  57          void main(void)
+  58          {
+  59   1      unsigned int a,c,flag;
+  60   1        unsigned long b;
+  61   1        
+  62   1        while(1){
+  63   2           num_disp(xx); 
+  64   2         while(i<8 ){
+  65   3          x[i]=getchar2()-48;
+  66   3          xx[i]=x[i];
+  67   3          i++;
+  68   3         }
+  69   2         c=2000;
+  70   2         b=3000;
+  71   2         if(flag==0)
+  72   2         {
+  73   3           while(b--)
+  74   3          {
+  75   4              for(a=0;a<8;a++)
+  76   4              {
+  77   5                  P1=step_table[a];
+  78   5                 delay2(c);
+  79   5              }
+  80   4            if(c>100) c=c-10;
+  81   4          }
+  82   3          flag=1;
+  83   3        }
+  84   2      }
+  85   1      }
+  86          /*
+  87          ======================ÊıÂë¹ÜÏÔÊ¾º¯Êı==========================
+  88          º¯ÊıÃû³Æ£ºnum_disp
+  89          º¯Êı²ÎÊı£º´¦ÀíÊı×éarr
+  90          º¯Êı×÷ÓÃ£º½«X×ø±êºÍY×ø±êÏÔÊ¾³öÀ´
+  91          ´´½¨Ê±¼ä£º2016Äê5ÔÂ2ÈÕ
+  92          ĞŞ¸ÄÊ±¼ä£»2016Äê5ÔÂ15ÈÕ
+  93          ×¢ÊÍĞŞ¸Ä£º2016Äê5ÔÂ20ÈÕ
+  94          ===============================================================
+  95          */
+  96          void num_disp(char *arr1)
+  97          {
+  98   1       if(arr1[0]!=40) return;
+  99   1       P0=LedChar[arr1[1]]; 
+ 100   1       P2=0x01;
+ 101   1       delay();
+ 102   1       P0=0x00;
+ 103   1         
+ 104   1       P0=LedChar[arr1[2]]; 
+ 105   1       P2=0x01<<1;
+ 106   1       delay();
+ 107   1       P0=0x00;
+ 108   1       
+ 109   1       P0=LedChar[arr1[3]]; 
+ 110   1       P2=0x01<<2;
+ 111   1       delay();
+ 112   1       P0=0x00;
+ 113   1         
+ 114   1       P0=LedChar[arr1[4]]+0x80;  
+ 115   1       P2=0x01<<3;
+ 116   1       delay();
+C51 COMPILER V9.52.0.0   MAIN                                                              06/09/2016 21:52:44 PAGE 3   
+
+ 117   1       P0=0x00;
+ 118   1       
+ 119   1       P0=LedChar[arr1[5]]; 
+ 120   1       P2=0x01<<4;
+ 121   1       delay();
+ 122   1       P0=0x00;
+ 123   1         
+ 124   1       P0=LedChar[arr1[6]]; 
+ 125   1       P2=0x01<<5;
+ 126   1       delay();
+ 127   1       P0=0x00;
+ 128   1      
+ 129   1       P0=LedChar[arr1[7]];
+ 130   1       P2=0x01<<6;
+ 131   1       delay();
+ 132   1       P0=0x00;
+ 133   1      
+ 134   1      }
+ 135          
+ 136          
+ 137          /*
+ 138          ======================ÑÓÊ±º¯Êı=================================
+ 139          º¯ÊıÃû³Æ£ºdelay
+ 140          º¯Êı×÷ÓÃ£ºÈí¼şÄ£ÄâÑÓÊ±
+ 141          ´´½¨Ê±¼ä£º2016Äê5ÔÂ4ÈÕ
+ 142          ĞŞ¸ÄÊ±¼ä£»2016Äê5ÔÂ4ÈÕ
+ 143          ×¢ÊÍĞŞ¸Ä£º2016Äê5ÔÂ4ÈÕ
+ 144          ===============================================================
+ 145          */
+ 146          void delay(void)
+ 147          
+ 148          {
+ 149   1              unsigned int i,j;
+ 150   1        i=1;
+ 151   1        while(i--){
+ 152   2          
+ 153   2               for(j=0;j<125;j++);
+ 154   2        }
+ 155   1      
+ 156   1      }
+ 157          
+ 158          void delay_bps() {
+ 159   1         unsigned char i; 
+ 160   1         for (i = 0; i < 29; i++); 
+ 161   1            _nop_();
+ 162   1            _nop_();
+ 163   1         } //²¨ÌØÂÊ9600 Ä£ÄâÒ»¸ö9600²¨ÌØÂÊ
+ 164          
+ 165          void delay2(unsigned int a)
+ 166          {
+ 167   1      while(a--);
+ 168   1      }
+ 169          
+ 170          /*
+ 171          ======================Ä£Äâ´®¿Ú½ÓÊÜºÍ·¢ËÍº¯Êı=====================
+ 172          º¯ÊıÃû³Æ£ºgetchar2,putchar2
+ 173          º¯Êı×÷ÓÃ£ºÄ£Äâ´®¿Ú·¢ËÍºÍ½ÓÊÜÊı¾İ
+ 174          ´´½¨Ê±¼ä£º2016Äê5ÔÂ8ÈÕ
+ 175          ĞŞ¸ÄÊ±¼ä£»2016Äê5ÔÂ11ÈÕ
+ 176          ×¢ÊÍĞŞ¸Ä£º2016Äê5ÔÂ11ÈÕ
+ 177          ===============================================================
+ 178          */
+C51 COMPILER V9.52.0.0   MAIN                                                              06/09/2016 21:52:44 PAGE 4   
+
+ 179          unsigned char getchar2()  //Ä£Äâ½ÓÊÕÒ»¸ö×Ö½ÚÊı¾İ
+ 180          {
+ 181   1        while (RXD1);
+ 182   1          _nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();
+ 183   1          delay_bps();
+ 184   1          SBUF1_bit0 = RXD1; //0       
+ 185   1          delay_bps();
+ 186   1          SBUF1_bit1 = RXD1; //1       
+ 187   1          delay_bps();
+ 188   1          SBUF1_bit2 = RXD1; //2       
+ 189   1          delay_bps();
+ 190   1          SBUF1_bit3 = RXD1; //3       
+ 191   1          delay_bps();
+ 192   1          SBUF1_bit4 = RXD1; //4       
+ 193   1          delay_bps();
+ 194   1          SBUF1_bit5 = RXD1; //5       
+ 195   1          delay_bps();
+ 196   1          SBUF1_bit6 = RXD1; //6       
+ 197   1          delay_bps();
+ 198   1          SBUF1_bit7 = RXD1; //7       
+ 199   1          delay_bps();
+ 200   1          return(SBUF1) ;      //·µ»Ø¶ÁÈ¡µÄÊı¾İ
+ 201   1      }
+ 202          
+ 203          void putchar2(unsigned char input)    //Ä£Äâ·¢ËÍÒ»¸ö×Ö½ÚÊı¾İ
+ 204          {
+ 205   1          SBUF1 = input;
+ 206   1          TXD1 = 0;  //ÆğÊ¼Î»
+ 207   1          delay_bps();    
+ 208   1          TXD1 = SBUF1_bit0;  //0
+ 209   1          delay_bps();    
+ 210   1          TXD1 = SBUF1_bit1;  //1
+ 211   1          delay_bps();    
+ 212   1          TXD1 = SBUF1_bit2;  //2
+ 213   1          delay_bps();    
+ 214   1          TXD1 = SBUF1_bit3;  //3
+ 215   1          delay_bps();    
+ 216   1          TXD1 = SBUF1_bit4;  //4
+ 217   1          delay_bps();    
+ 218   1          TXD1 = SBUF1_bit5;  //5
+ 219   1          delay_bps();    
+ 220   1          TXD1 = SBUF1_bit6;  //6
+ 221   1          delay_bps();    
+ 222   1          TXD1 = SBUF1_bit7;  //7
+ 223   1          delay_bps();    
+ 224   1          TXD1 = 1;       //Í£Ö¹Î»
+ 225   1          delay_bps();    
+ 226   1      }
+ 227           
+ 228          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    652    ----
+   CONSTANT SIZE    =     10    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     38      13
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
